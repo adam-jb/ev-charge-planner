@@ -1,0 +1,59 @@
+
+// to download latest osm file for GB (in mac is "curl -o"
+wget great-britain-latest.osm.pbf http://download.geofabrik.de/europe/great-britain-latest.osm.pbf
+
+// preprocess for routing (if you have too little RAM the process will "silently fail" (no output, but no error shown either). Required 5.9Gb of RAM to extract GB
+docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-extract -p /opt/car.lua /data/great-britain-latest.osm.pbf
+docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-partition /data/great-britain-latest.osrm
+docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-customize /data/great-britain-latest.osrm
+
+
+// start "listening" (you only need to run this, assuming the extracted files are in place)
+docker run --rm -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/great-britain-latest.osrm
+
+
+
+docker run --rm -t -i -p 8080 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/great-britain-latest.osrm
+
+docker run --rm -t -i -p 8080 -v "${PWD}" osrm/osrm-backend osrm-routed --algorithm mld great-britain-latest.osrm
+
+
+
+
+
+
+
+
+// overview of how to get polylines data from OSRM and visualising it
+https://paris-fire-brigade.github.io/data-challenge/post/2019/06/13/06-set-up-an-osrm-server-on-ubuntu.html
+
+
+
+
+
+OSRM requests
+// "table" returns a distance matrix, for example the below returns a 3x3 matrix from the Berlin OSM data
+curl 'http://router.project-osrm.org/table/v1/driving/13.388860,52.517037;13.397634,52.529407;13.428555,52.523219'
+
+
+
+// this works for GB on internal server (does routes, but doesn't seem to return correct distances for input coordinates)
+http://0.0.0.0:5000/table/v1/driving/53.889136,0.982331;55.220574,-0.874359;55.208039,0.674713
+
+
+// this works on hosted server (note IP address at start of URL). All works (coordinates from postcodes)
+63.250.58.119:5000/table/v1/driving/57.14417,-2.114848;52.56494,-2.168637;51.54711,0.6271759;50.28131,-5.210438
+
+
+
+Swapfile may be needed so less RAM required
+https://github.com/Project-OSRM/osrm-backend/wiki/Running-OSRM
+
+
+
+
+OSRM API documentation (inc syntax)
+http://project-osrm.org/docs/v5.5.1/api/#route-service
+
+
+

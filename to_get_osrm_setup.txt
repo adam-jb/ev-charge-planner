@@ -15,3 +15,8 @@ docker run --rm -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-rout
 
 This should now be queryable, try putting this test query into a chrome URL (London to Birmingham):
 curl 'http://0.0.0.0/5000/route/v1/driving/0.1278,51.5074;1.8904,52.4862?overview=false'
+
+
+
+// if the extraction stage fails it might be because too little RAM is assigned to docker:
+// https://stackoverflow.com/questions/53157542/osrm-extract-silently-fails

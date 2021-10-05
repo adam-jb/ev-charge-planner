@@ -13,8 +13,11 @@ docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-partition /data/great-bri
 docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-customize /data/great-britain-latest.osrm
 docker run --rm -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/great-britain-latest.osrm
 
-This should now be queryable, try putting this test query into a chrome URL (London to Birmingham):
-curl 'http://0.0.0.0/5000/route/v1/driving/0.1278,51.5074;1.8904,52.4862?overview=false'
+This should now be queryable on your local machine, try putting this test query into a chrome URL (London to Birmingham):
+http://0.0.0.0:5000/route/v1/driving/0.1278,51.5074;1.8904,52.4862?overview=false
+
+Which should return this json text:
+{"code":"Ok","routes":[{"legs":[{"steps":[],"distance":195965.8,"duration":9411.4,"summary":"","weight":9411.4}],"distance":195965.8,"duration":9411.4,"weight_name":"routability","weight":9411.4}],"waypoints":[{"hint":"IZUlgKjVA4AAAAAAJQAAACwAAAAAAAAA8YMPP7HqI0JhMUNCAAAAAAAAAAAlAAAALAAAAAAAAAAICgAA3PEBANrwEQM48wEAyPARAwIATwC5h6_n","distance":24.235777,"name":"Crossway","location":[0.127452,51.507418]},{"hint":"nhVagLcVWoAaAAAAAAAAABoAAABoAAAAh-iQQQAAAAAuLpFBFG6QQhoAAAAAAAAAGgAAAGgAAAAICgAAV-QaACXNIANg2BwAOOAgAwEAPwG5h6_n","distance":8715.305307,"name":"Gas Works Road","location":[1.762391,52.481317]}]}
 
 
 

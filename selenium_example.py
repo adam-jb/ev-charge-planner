@@ -7,6 +7,13 @@ from selenium.webdriver import ActionChains
 
 
 
+# might make selenium headless (something which stops the mouse moving while it's working): not tested
+options = Options()
+options.add_argument("--headless")
+driver = webdriver.Firefox(firefox_options=options)
+
+
+
 
 ###ope website driver
 poly_url='https://polymarket.com/market/will-100-million-people-have-received-a-dose-of-an-approved-covid-19-vaccine-in-the-us-by-april-1-2021'

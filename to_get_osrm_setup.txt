@@ -23,3 +23,11 @@ Which should return this json text:
 
 // if the extraction stage fails it might be because too little RAM is assigned to docker:
 // https://stackoverflow.com/questions/53157542/osrm-extract-silently-fails
+
+
+
+/// to increase OSRM limit about 100:
+/// Launch osrm-routed increasing the parameter --max-table-size with the desired size.
+osrm-routed --max-table-size=1000 map.osrm
+
+https://gis.stackexchange.com/questions/178669/how-can-i-increase-limits-of-osrm-table-function

@@ -46,8 +46,8 @@ sample_ncr = pd.DataFrame(sample_ncr, columns=['latitude', 'longitude','rating',
 
 
 osrm_url = '0.0.0.0:5000'
-#osrm_url = 'http://34.70.0.117:5000'
-osrm_url = 'http://34.132.175.14:5000'
+osrm_url = 'http://34.70.0.117:5000'
+#osrm_url = 'http://34.132.175.14:5000'
 
 
 

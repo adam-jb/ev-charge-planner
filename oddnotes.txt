@@ -1,0 +1,49 @@
+Open and deactivate venv
+
+
+source venv/bin/activate
+deactivate venv
+
+
+Install pandas in linux without it taking ages:
+conda install pandas
+(So like pip, but with conda command - need miniconda installed for it to work)
+https://pandas.pydata.org/docs/getting_started/install.html
+
+
+for setting flask up on Google Compute Engine with http (not https) on nginx and gunicorn
+https://towardsdatascience.com/deploying-a-custom-ml-prediction-service-on-google-cloud-ae3be7e6d38f
+
+
+To launch app in compute engine:
+gunicorn --bind 0.0.0.0:5000 app:app
+
+
+To launch in compute engine and go in background:
+gunicorn --bind 0.0.0.0:5000 app:app --daemon
+
+
+
+Linux: to list % of RAM used by each process
+ps -o pid,user,%mem,command ax | sort -b -k3 -r
+ 
+ 
+Linux: list active internet connections/ports
+netstat -natp
+
+
+# linux: open first file in folder in sublime
+sublime $(ls | head -1)
+
+
+ 
+ To schedule the time a compute engine instance is live:
+ >go Instances, then 'Instance Schedule' tab; make a schedule; then assign it to an Instance. It's that easy
+
+
+
+ 
+ 
+
+ 
+

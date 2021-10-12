@@ -1,0 +1,509 @@
+
+<!-- heavily inspired by http://bl.ocks.org/Sumbera/c6fed35c377a46ff74c3
+--> 
+
+<!doctype html>
+<html>
+<head>
+    <title>Journey Map</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <style>
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: rgb(14, 21, 30);
+            height: 100%;
+        }
+
+        #map {
+            position: absolute;
+            height: 100%;
+            width: 75%;
+            background-color: #333;
+        }
+
+        #hover_box {
+          background-color: rgba(100, 30, 30, 0.9);
+          color: white;
+          border-radius: 25px;
+          left: 2%;
+          position: fixed;
+          top: 0.5%;
+          border: 2px solid black;
+          padding: 10px;
+          margin: 20px;
+          font-size: 20px;
+          text-align: center;
+          font-family: Arial;
+          line-height: 1.6;
+        }
+
+        #demo-content {
+            padding-top: 100px;
+        }
+
+       .sidebar {
+        color:white;
+       } 
+
+    </style>
+    <!-- vertex shader -->
+    <script id="vshader" type="x-shader/x-vertex">
+        uniform mat4 u_matrix;
+        attribute vec4 a_vertex;
+        attribute float a_pointSize;
+        attribute vec4 a_color;
+        varying vec4 v_color;
+
+        void main() {
+        // Set the size of the point
+        gl_PointSize =  a_pointSize;
+
+        // multiply each vertex by a matrix.
+        gl_Position = u_matrix * a_vertex;
+
+
+        // pass the color to the fragment shader
+        v_color = a_color;
+        }
+    </script>
+    <!-- fragment shader -->
+
+
+
+    <script id="fshader" type="x-shader/x-fragment">  
+        precision mediump float;
+        varying vec4 v_color;
+
+        void main() {
+
+        float border = 0.05;
+        float radius = 0.5;
+        vec4 color0 = vec4(0.0, 0.0, 0.0, 0.0);
+
+        //vec4 color1 = vec4(v_color[0], v_color[1], v_color[2], 0.9);
+        vec4 color1 = vec4(255, 0, 0, 0.9);  // switching this line for the above line makes all dots red instead of rand colours
+
+
+        vec2 m = gl_PointCoord.xy - vec2(0.5, 0.5);
+        float dist = radius - sqrt(m.x * m.x + m.y * m.y);
+
+        float t = 0.0;
+        if (dist > border)
+        t = 1.0;
+        else if (dist > 0.0)
+        t = dist / border;
+
+        // float centerDist = length(gl_PointCoord - 0.5);
+        // works for overlapping circles if blending is enabled
+
+
+
+        gl_FragColor = mix(color0, color1, t);
+
+
+
+
+
+        /*
+        // -- another way for circle
+        float centerDist = length(gl_PointCoord - 0.5);
+        float radius = 0.5;
+        // works for overlapping circles if blending is enabled
+        gl_FragColor = vec4(v_color[0], v_color[1], v_color[2], 1 * step(centerDist, radius));
+        */
+
+        /*
+        // simple circles
+        float d = distance (gl_PointCoord, vec2(0.5,0.5));
+        if (d < 0.5 ){
+        gl_FragColor =vec4(v_color[0], v_color[1], v_color[2], 1);
+        }
+        else{
+        discard;
+        }
+        */
+
+        // -- squares
+        //gl_FragColor = v_color;
+        //gl_FragColor =vec4(v_color[0], v_color[1], v_color[2], 1); // v_color;
+
+        }
+
+    </script>
+
+</head>
+<body>
+
+
+
+
+    <div id="map"></div>
+    <div id='sidebar-main' class="w3-sidebar w3-bar-block" style="width:25%;right:0">
+      <h5 class="w3-bar-item" id='sidebar-title'>You're going to...</h5>
+      <a id='sidebar-ratingsinfo' class="w3-bar-item w3-button">These are all in the top 45% of places to charge as ranked by Yelp.com and (motorway review site)</a>
+       <a id="sidebar-chargingtime" class="w3-bar-item w3-button">You'll spend XYZ minutes in total waiting to charge your car</a>
+       <a id="sidebar-driveinfo" class="w3-bar-item w3-button">You'll spend XYZ hours driving, covering XYZ miles all told</a>
+    </div>
+
+
+    <link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.css" />
+    <script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.js"></script>
+
+    <script src="{{ url_for('static', filename='vendor/LCanvasOverlay.js') }}"></script>
+    <script src="{{ url_for('static', filename='86T.json') }}"></script>
+
+    <!--
+    <script src="http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js"></script>
+    <script src="http://www.sumbera.com/gist/86T.json" charset="utf-8"></script>
+    -->
+
+
+    <script>
+
+        /// getting data from flask
+        data = {{points_from_flask | safe}}
+
+
+
+        var center_coords = {{center | safe}}
+        console.log(center_coords)
+
+        var zoom_level = {{zoom_level | safe}}
+        zoom_level = zoom_level[0]
+        console.log(zoom_level)
+
+
+        //var leafletMap = L.map('map').setView([52.412811, -1.778197], 7);   // centre over birminghham
+        var leafletMap = L.map('map').setView(center_coords, zoom_level);   // centre coords and zoom level from flask
+
+
+        /*
+        L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
+        //L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png")
+            .addTo(leafletMap);
+            */
+
+
+        L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+             subdomains: 'abcd',
+             minZoom: 0,
+             maxZoom: 20,
+             ext: 'png'
+          })
+            .addTo(leafletMap);
+
+
+        /// add icon points
+        /*
+        var marker_coords = {{marker | safe}}
+        var myMarker = L.marker(marker_coords,  {
+           clickable: true
+        })
+        myMarker.bindPopup('Charging place: ... ').openPopup();
+        myMarker.addTo(leafletMap);
+        */
+
+        var dict_for_sidebar = JSON.parse('{{ dict_for_sidebar | tojson}}');    
+        marker_coords = dict_for_sidebar.marker_coords;
+        place_names = dict_for_sidebar.place_names;    
+
+        /// add all icons
+        for (i=0; i<marker_coords.length;i++) {
+            var myMarker = L.marker(marker_coords[i],  {
+               clickable: true
+            })
+            myMarker.bindPopup(place_names[i]).openPopup();
+            myMarker.addTo(leafletMap);
+        }
+
+
+        //// add polylines
+        //console.log(data)
+        //L.polyline(data, {color: 'red'}).addTo(leafletMap);  // data = points_from_flask
+        //leafletMap.fitBounds(polyline.getBounds());        // fit bounding box to polylines
+
+
+
+
+        /// webGl
+        var glLayer = L.canvasOverlay()
+                       .drawing(drawingOnCanvas)
+                       .addTo(leafletMap);
+        var canvas = glLayer.canvas();
+
+        glLayer.canvas.width = canvas.clientWidth;
+        glLayer.canvas.height = canvas.clientHeight;
+
+
+        var gl = canvas.getContext('experimental-webgl', { antialias: true });
+
+        var pixelsToWebGLMatrix = new Float32Array(16);
+        var mapMatrix = new Float32Array(16);
+
+        // -- WebGl setup
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, document.getElementById('vshader').text);
+        gl.compileShader(vertexShader);
+
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, document.getElementById('fshader').text);
+        gl.compileShader(fragmentShader);
+
+        // link shaders to create our program
+        var program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+
+
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
+      //  gl.disable(gl.DEPTH_TEST);
+        // ----------------------------
+        // look up the locations for the inputs to our shaders.
+        var u_matLoc = gl.getUniformLocation(program, "u_matrix");
+        var colorLoc = gl.getAttribLocation(program, "a_color");
+        var vertLoc = gl.getAttribLocation(program, "a_vertex");
+        gl.aPointSize = gl.getAttribLocation(program, "a_pointSize");
+        // Set the matrix to some that makes 1 unit 1 pixel.
+
+        pixelsToWebGLMatrix.set([2 / canvas.width, 0, 0, 0, 0, -2 / canvas.height, 0, 0, 0, 0, 0, 0, -1, 1, 0, 1]);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+
+        gl.uniformMatrix4fv(u_matLoc, false, pixelsToWebGLMatrix);
+
+
+
+
+        /// updating sidebar info
+        var postcode_destination=dict_for_sidebar.postcode_destination;
+        var journey_niceness=dict_for_sidebar.journey_niceness;
+        time_charging = dict_for_sidebar.time_charging;
+        total_miles = dict_for_sidebar.total_miles;
+        hrs_driving = dict_for_sidebar.hrs_driving;
+
+        console.log(postcode_destination)
+
+        text_for_title = "You're going to ".concat(postcode_destination).concat(' !');
+        console.log(text_for_title)
+        document.getElementById('sidebar-title').innerHTML = text_for_title
+
+        console.log('journey_niceness')
+        console.log(journey_niceness)
+        console.log(typeof journey_niceness)
+
+        text_for_title = "These stopping points score an average of ".concat(
+                (journey_niceness.toFixed(1)).toString()).concat(
+                " Stars as ranked by Yelp.com and MotorwayServicesOnline.co.uk");
+        console.log(text_for_title)
+        document.getElementById('sidebar-ratingsinfo').innerHTML = text_for_title
+
+        text_for_title = "You'll spend ".concat(Math.round(time_charging)).concat(' minutes in total charging your car');
+        console.log(text_for_title)
+        document.getElementById('sidebar-chargingtime').innerHTML = text_for_title
+
+        console.log(hrs_driving)
+        text_for_title = "You'll spend ".concat(Math.round(hrs_driving)).concat(' hours driving, covering ').concat(Math.round(total_miles)).concat(" miles all told");
+        console.log(text_for_title)
+        document.getElementById('sidebar-driveinfo').innerHTML = text_for_title
+
+
+
+        // adding break before destinations list
+        document.getElementById('sidebar-main').appendChild(document.createElement("br"));  
+        
+        // adding text on the stops
+         var new_thing = document.createElement('a');
+         var newContent = document.createTextNode("You'll stop at the following:");
+         new_thing.appendChild(newContent);
+         new_thing.className = "w3-bar-item w3-button";
+         document.getElementById('sidebar-main').appendChild(new_thing);  
+
+        // write info on each stopping point as new data
+        destination_names = dict_for_sidebar.destination_names;
+        for (let i=0; i<destination_names.length; i++) {   /// dont assign i with int - causes error - this isnt c++
+            var new_line = document.createElement('a');
+             var newContent = document.createTextNode(destination_names[i]);
+             new_line.appendChild(newContent);
+             new_line.className = "w3-bar-item w3-button";
+             //new_line.style.background = 'red';
+             // new_line.style.opacity = 0.6;
+             document.getElementById('sidebar-main').appendChild(new_line);  
+
+        }
+
+
+        // adding 'safe travels' text
+        document.getElementById('sidebar-main').appendChild(document.createElement("br"));  
+        new_thing = document.createElement('a');
+         newContent = document.createTextNode("Safe travels :)");
+         new_thing.appendChild(newContent);
+         new_thing.className = "w3-bar-item w3-button";
+         document.getElementById('sidebar-main').appendChild(new_thing);  
+
+
+
+
+        /*
+        "postcode_destination":postcode_destination,
+        "total_charge_minutes":total_charge_minutes,
+        "top_percent_locations_to_charge": top_percent_locations_to_charge,
+        "total_hours_driving":total_hours_driving,
+        "total_miles_driven":total_miles_driven,
+        "destination_names":destination_names,
+        "destination_postcodes":destination_postcodes
+        */
+
+
+
+        // -- data
+        var verts = [];
+
+
+        
+        // adding text to hover_box
+        from_flask_array_length = data.length
+
+        var event = new Date();
+        var printed_datetime = event.toLocaleString('en-GB', { timeZone: 'Europe/London' });
+        var printed_datetime = event.toLocaleString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+        
+
+        //document.getElementById('hover_box').innerHTML = from_flask_array_length + 
+         //                                               ' buses detected<br>At ' +
+         //                                               printed_datetime;
+
+
+        data.map(function (d, i) {
+             pixel = LatLongToPixelXY(+d[0], +d[1]);
+            //-- 2 coord, 3 rgb colors interleaved buffer
+            verts.push(pixel.x, pixel.y, Math.random(), Math.random(), Math.random());
+        });
+
+        //console.log(data)
+        //console.log(verts)
+        //console.log(typeof verts);
+
+        var numPoints = data.length ;
+
+        var vertBuffer = gl.createBuffer();
+        var vertArray = new Float32Array(verts);
+        var fsize = vertArray.BYTES_PER_ELEMENT;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertArray, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(vertLoc, 2, gl.FLOAT, false,fsize*5,0);
+        gl.enableVertexAttribArray(vertLoc);
+        // -- offset for color buffer
+        gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, fsize*5, fsize*2);
+        gl.enableVertexAttribArray(colorLoc);
+
+        glLayer.redraw();
+
+
+        function drawingOnCanvas(canvasOverlay, params) {
+            if (gl == null) return;
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+            pixelsToWebGLMatrix.set([2 / canvas.width, 0, 0, 0, 0, -2 / canvas.height, 0, 0, 0, 0, 0, 0, -1, 1, 0, 1]);
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+
+
+            var pointSize = Math.max(leafletMap.getZoom() - 4.0, 1.0);
+            gl.vertexAttrib1f(gl.aPointSize, pointSize);
+
+            // -- set base matrix to translate canvas pixel coordinates -> webgl coordinates
+            mapMatrix.set(pixelsToWebGLMatrix);
+
+            var bounds = leafletMap.getBounds();
+            var topLeft = new L.LatLng(bounds.getNorth(), bounds.getWest());
+            var offset = LatLongToPixelXY(topLeft.lat, topLeft.lng);
+
+            // -- Scale to current zoom
+            var scale = Math.pow(2, leafletMap.getZoom());
+            scaleMatrix(mapMatrix, scale, scale);
+
+            translateMatrix(mapMatrix, -offset.x, -offset.y);
+
+            // -- attach matrix value to 'mapMatrix' uniform in shader
+            gl.uniformMatrix4fv(u_matLoc, false, mapMatrix);
+            gl.drawArrays(gl.POINTS, 0, numPoints);
+
+        }
+
+        // Returns a random integer from 0 to range - 1.
+        function randomInt(range) {
+            return Math.floor(Math.random() * range);
+        }
+
+        /*
+        function latlonToPixels(lat, lon) {
+            initialResolution = 2 * Math.PI * 6378137 / 256, // at zoomlevel 0
+            originShift = 2 * Math.PI * 6378137 / 2;
+
+            // -- to meters
+            var mx = lon * originShift / 180;
+            var my = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
+            my = my * originShift / 180;
+
+
+            // -- to pixels at zoom level 0
+
+            var res = initialResolution;
+            x = (mx + originShift) / res,
+            y = (my + originShift) / res;
+
+
+            return { x: x, y: 256- y };
+        }
+        */
+        // -- converts latlon to pixels at zoom level 0 (for 256x256 tile size) , inverts y coord )
+        // -- source : http://build-failed.blogspot.cz/2013/02/displaying-webgl-data-on-google-maps.html
+
+        function LatLongToPixelXY(latitude, longitude) {
+            var pi_180 = Math.PI / 180.0;
+            var pi_4 = Math.PI * 4;
+            var sinLatitude = Math.sin(latitude * pi_180);
+            var pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi_4)) * 256;
+            var pixelX = ((longitude + 180) / 360) * 256;
+
+            var pixel = { x: pixelX, y: pixelY };
+
+            return pixel;
+        }
+
+        function translateMatrix(matrix, tx, ty) {
+            // translation is in last column of matrix
+            matrix[12] += matrix[0] * tx + matrix[4] * ty;
+            matrix[13] += matrix[1] * tx + matrix[5] * ty;
+            matrix[14] += matrix[2] * tx + matrix[6] * ty;
+            matrix[15] += matrix[3] * tx + matrix[7] * ty;
+        }
+
+        function scaleMatrix(matrix, scaleX, scaleY) {
+            // scaling x and y, which is just scaling first two columns of matrix
+            matrix[0] *= scaleX;
+            matrix[1] *= scaleX;
+            matrix[2] *= scaleX;
+            matrix[3] *= scaleX;
+
+            matrix[4] *= scaleY;
+            matrix[5] *= scaleY;
+            matrix[6] *= scaleY;
+            matrix[7] *= scaleY;
+        }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+
+
+<html>
+<head>
+
+<style>
+
+
+
+.form-text {
+	margin: auto;
+	text-align: center;
+	  font-family: Arial, Helvetica, sans-serif;
+	  z-index: 1;
+	  color: white;
+}
+
+.dot {
+  visibility: hidden;
+  height: 500px;
+  width: 500px;
+  background-color: white;
+  border-radius: 50%;
+  display: inline-block;
+  margin-top:-104px;
+  opacity: .99;
+}
+
+body {
+  background-color: #404040;
+}
+
+.slidecontainer {
+  width: 20%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 20%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #04AA6D;
+  cursor: pointer;
+}
+
+.slider-show {
+	font-family: Arial, Helvetica, sans-serif;
+	color:white;
+}
+
+.form-group {
+	 line-height: 2.0;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  background-color: white; 
+  color: black; 
+  border: 2px solid #4CAF50;
+  border-radius: 25px;
+  text-align: center;  
+}
+
+.button:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+
+
+/* things which are shown during load */
+.loading-text {
+	display: none;
+	margin: auto;
+	  width: 50%;
+	  padding: 10px;
+	  text-align: center;
+	  font-family: Arial, Helvetica, sans-serif;
+	  z-index: 1;
+	  background: transparent;
+	  background-repeat:no-repeat;
+	  
+	transform: translateY(60%);
+}
+
+#cargif {
+	display: none;
+    margin: auto;
+    z-index: 1;
+    background: transparent;
+    transform: translateY(5%);
+}
+
+
+.circle-group {
+	display: none;
+	width:500px;
+	height:500px;
+	background:white;
+	margin:8% auto;
+	border-radius:50%;
+	top:20%;
+}
+
+
+</style>
+
+
+</head>
+<body>
+
+
+<h2 class='form-text' id='header-title'>Tell us about your journey</h2>
+<br>
+<form  style="text-align: center; top: 20px;" method="POST" action = "/">
+  <div class = "form-group">
+  	<p class='form-text'>Postcode for place you're leaving (please include the space in the middle)</p>
+    <input type="text" name = "postcode_first" id='mids'>
+    <p class='form-text'>Postcode for destination</p>
+    <input type="text" name = "postcode_destination" id='mids'>
+    <p class='form-text'>What do you prefer? Speed (slide left) or quality of places to charge (slide right)</p>
+    <input type="range" min="1" max="100" value="50" class="slider" id="mids", name="speed_comfort">
+    <p class='form-text'>What's the highest kW your EV can charge in?</p>
+    <input type="range" min="1" max="1000" value="225" class="slider" id="mids", name="ev_charge_speed" oninput="this.nextElementSibling.value = this.value">
+    <output class='slider-show'>225</output>
+    <p class='form-text'>How big if your EV's battery? (in kWH)</p>
+    <input type="range" min="1" max="250" value="93" class="slider" id="mids", name="battery_size" oninput="this.nextElementSibling.value = this.value">
+    <output class='slider-show'>93</output>
+    <p class='form-text'>What's your EV's maximum range? (in miles)</p>
+    <input type="range" min="1" max="600" value="200" class="slider" id="mids", name="max_range" oninput="this.nextElementSibling.value = this.value">
+	<output class='slider-show'>200</output>
+
+  </div>
+  <input id='init-botton-to-delete-on-click' class="button" type="submit" value="Get route!" onclick="show()">
+</form>
+
+
+
+<!-- stuff to show on loading once form sent -->
+<div class='circle-group'>
+	<h2 class="loading-text">Finding your route... </h2>
+	<h2 class="loading-text">Just one sec!</h2>
+	<img id='cargif' src="static/cargif.gif" width="400" height="260"/>
+	<span class="dot"></span>
+</div>
+
+
+</body>
+
+<script>
+
+function show() {
+
+
+	/// hidding previous images
+	document.getElementById('header-title').style.display = 'none';
+	document.getElementsByClassName("form-group")[0].style.display = 'none';  /// hides all form components
+	document.getElementById('init-botton-to-delete-on-click').style.display = 'none';
+
+
+
+	/// showing loading images
+  //document.getElementsByClassName('dot')[0].style.visibility = 'visible';
+  document.getElementById('cargif').style.display = 'block';
+  document.getElementsByClassName("loading-text")[0].style.display = 'block';
+  document.getElementsByClassName("loading-text")[1].style.display = 'block';
+  document.getElementsByClassName("circle-group")[0].style.display = 'block';
+
+
+}
+
+
+</script>
+
+
+</html>
+

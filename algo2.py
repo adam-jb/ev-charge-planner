@@ -97,6 +97,9 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
     max_range = float(max_range)
     stops_count = np.min([(math.ceil((1.2 * distance_start_to_end_miles) / max_range) - 1), 6])  # maximum of 6 stop counts for computational tractability
 
+    print('stops count')
+    print(stops_count)
+
     print('distance_start_to_end_miles')
     print(distance_start_to_end_miles)
     print(max_range)
@@ -465,6 +468,7 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
         hours_to_charge = (charge_needed / max_range) * battery_size / charge_speeds_all_stops[:, stop_count - 1]
         charge_times_all_stops[:, stop_count - 1] = hours_to_charge
 
+
     quality_all_stops = np.zeros((journeys.shape[0], journeys.shape[1] - 2))
     for stop_count in range(1, charge_speeds_all_stops.shape[1] + 1):
         quality_all_stops[:, stop_count - 1] = user_review_ratings[journeys[:, stop_count]]
@@ -478,9 +482,13 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
     print(charge_times_all_stops.shape)
     print(quality_all_stops.shape)
 
+    charge_times_all_stops = charge_times_all_stops + 0.01
     journey_niceness_weighted_avg = np.average(quality_all_stops, axis=1, weights=charge_times_all_stops)
+    print('got journey_niceness_weighted_avg')
     total_charge_time = np.sum(charge_times_all_stops, axis=1)
+    print('got total_charge_time')
     total_journey_time = np.sum(journey_times, axis=1) / 3600
+    print('got total_journey_time')
 
     # overall scores: is sensitive to the multiplier below, where a higher multiplier gives more weight to comfort
     sensitive_multiplier = 0.5

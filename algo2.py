@@ -111,7 +111,7 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
 
 
     points_between_dict = {}          # #latlong_first is (long, lat)
-    for i in range(1,stops_count+1):
+    for i in range(1,int(stops_count)+1):
         points_between_dict[i] = [
                                 latlong_first[0] - ((latlong_first[0] - latlong_destination[0]) * (i / (stops_count+1))),
                                 latlong_first[1] - ((latlong_first[1] - latlong_destination[1]) * (i / (stops_count+1))),

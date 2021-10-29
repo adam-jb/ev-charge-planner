@@ -4,6 +4,57 @@ import numpy as np
 import math
 
 
+
+
+# define functions ######################################
+
+
+def get_ellipse(start_lat_long,end_lat_long):
+
+    # get equation of ellipse between those points where they are either end of longer radius
+    # so need to find
+    #   centre of ellipse (in terms of lat long)
+    #   longer radius (in terms of lat long)
+    #   shorter radius (in terms of lat long)
+    #   angle A through which ellipse is rotated from diameter aligning with x axis (longitude)
+    #   tan(A) = latitude difference/ longitude difference
+    #   A = arctan(latitude difference/ longitude difference)
+
+
+    # find centre of ellipse
+    centre_lat = (start_lat_long['latitude'].iloc[0] + end_lat_long['latitude'].iloc[0]) / 2
+    centre_long = (start_lat_long['longitude'].iloc[0] + end_lat_long['longitude'].iloc[0]) / 2
+
+    # find radius = 0.5 * distance between points
+    # use pythagoras
+    lat_diff = abs(start_lat_long['latitude'].iloc[0] - end_lat_long['latitude'].iloc[0])
+    long_diff = abs(start_lat_long['longitude'].iloc[0] - end_lat_long['longitude'].iloc[0])
+    longer_radius = ellipse_factor * math.sqrt((long_diff) ** 2 + (lat_diff) ** 2)
+
+    # work out latitude and longitude differences without absolute
+    lat_diff_non_abs = end_lat_long['latitude'].iloc[0] - start_lat_long['latitude'].iloc[0]
+    long_diff_non_abs = end_lat_long['longitude'].iloc[0] - start_lat_long['longitude'].iloc[0]
+
+    # try setting smaller radius as half of longer radius
+    shorter_radius = 0.5 * longer_radius
+
+    angle = np.arctan(lat_diff_non_abs/long_diff_non_abs)
+
+    return centre_lat,centre_long,longer_radius,shorter_radius,angle
+
+
+
+
+def filter_chargepoints(number_charge_points_threshold,rating_threshold,ncr_filtered) :
+
+    ncr_filtered = ncr_filtered.loc[ncr_filtered['chargers_count'] >= number_charge_points_threshold]
+
+    ncr_filtered = ncr_filtered.loc[ncr_filtered['rating'] >= rating_threshold]
+
+    return ncr_filtered
+
+
+
 def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,comfort_rating):
 
 
@@ -38,54 +89,9 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     # factor to squash ellipse
     ellipse_factor = 5
 
-    # define functions ######################################
-
-
-    def get_ellipse(start_lat_long,end_lat_long):
-
-        # get equation of ellipse between those points where they are either end of longer radius
-        # so need to find
-        #   centre of ellipse (in terms of lat long)
-        #   longer radius (in terms of lat long)
-        #   shorter radius (in terms of lat long)
-        #   angle A through which ellipse is rotated from diameter aligning with x axis (longitude)
-        #   tan(A) = latitude difference/ longitude difference
-        #   A = arctan(latitude difference/ longitude difference)
-
-
-        # find centre of ellipse
-        centre_lat = (start_lat_long['latitude'].iloc[0] + end_lat_long['latitude'].iloc[0]) / 2
-        centre_long = (start_lat_long['longitude'].iloc[0] + end_lat_long['longitude'].iloc[0]) / 2
-
-        # find radius = 0.5 * distance between points
-        # use pythagoras
-        lat_diff = abs(start_lat_long['latitude'].iloc[0] - end_lat_long['latitude'].iloc[0])
-        long_diff = abs(start_lat_long['longitude'].iloc[0] - end_lat_long['longitude'].iloc[0])
-        longer_radius = ellipse_factor * math.sqrt((long_diff) ** 2 + (lat_diff) ** 2)
-
-        # work out latitude and longitude differences without absolute
-        lat_diff_non_abs = end_lat_long['latitude'].iloc[0] - start_lat_long['latitude'].iloc[0]
-        long_diff_non_abs = end_lat_long['longitude'].iloc[0] - start_lat_long['longitude'].iloc[0]
-
-        # try setting smaller radius as half of longer radius
-        shorter_radius = 0.5 * longer_radius
-
-        angle = np.arctan(lat_diff_non_abs/long_diff_non_abs)
-
-        return centre_lat,centre_long,longer_radius,shorter_radius,angle
-
-
-
-
-    def filter_chargepoints(number_charge_points_threshold,rating_threshold,ncr_filtered) :
-
-        ncr_filtered = ncr_filtered.loc[ncr_filtered['chargers_count'] >= number_charge_points_threshold]
-
-        ncr_filtered = ncr_filtered.loc[ncr_filtered['rating'] >= rating_threshold]
-
-        return ncr_filtered
 
     # clean data ##########################################
+    print('cleaning data')
 
 
     # only keep variables we need
@@ -96,11 +102,13 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     start_postcode_coordinates = postcode_lookup.loc[postcode_lookup['postcode'] == start_postcode]
     start_lat_long = start_postcode_coordinates[['latitude','longitude']]
     end_postcode_coordinates = postcode_lookup.loc[postcode_lookup['postcode'] == end_postcode]
-    end_lat_long = end_postcode_coordinates[['latitude','longitude']]
+    end_lat_long = end_postcode_coordinates[['latitude','longitude
+                                            
 
 
     # find equation of ellipse #####################################
     # using function
+    print('finding ellipse')                                        
 
     ellipse_centre_lat, ellipse_centre_long, longer_radius, shorter_radius, angle = get_ellipse(start_lat_long,end_lat_long)
 
@@ -117,12 +125,15 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     term_2 = ((ncr_data['longitude']-ellipse_centre_long)*np.sin(angle) - (ncr_data['latitude']-ellipse_centre_lat)*np.cos(angle))**2
 
     ncr_in_ellipse = ncr_data.loc[term_1/(longer_radius**2) + term_2/(shorter_radius**2) < 1]
+                                             
 
 
     # filter chargepoints until there is only 100 left ##########################################
 
     # initate data frame
-
+                                             
+                                            
+    print('filtering chargepoints')
     ncr_filtered = ncr_in_ellipse
 
     while len(ncr_filtered) >= max_chargepoints:

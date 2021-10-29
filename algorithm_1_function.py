@@ -135,28 +135,30 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
                                             
     print('filtering chargepoints')
     ncr_filtered = ncr_in_ellipse
+    
+    if len(ncr_filtered) >= min_chargements:   # only do loop if starting number of places exceeds the minimum, otherwise it gets stuck in a loop
 
-    while len(ncr_filtered) >= max_chargepoints:
-        ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
-
-        # add condition which steps back if filtering is too much
-        while (len(ncr_filtered) < min_chargepoints):
-            threshold_increment = threshold_increment / 2
-            rating_threshold -= threshold_increment
+        while len(ncr_filtered) >= max_chargepoints:
             ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
-            # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
-            print(len(ncr_filtered))
-            
-            if (len(ncr_filtered) >= max_chargepoints):
-                threshold_increment = threshold_increment / 2
-                rating_threshold += threshold_increment
-                ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
-                print(len(ncr_filtered))
-                # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
 
-        # if(rating_threshold.is_integer()):number_charge_points_threshold += 1
-        if (rating_threshold < max_rating): rating_threshold += threshold_increment
-        # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
+            # add condition which steps back if filtering is too much
+            while (len(ncr_filtered) < min_chargepoints):
+                threshold_increment = threshold_increment / 2
+                rating_threshold -= threshold_increment
+                ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
+                # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
+                print(len(ncr_filtered))
+
+                if (len(ncr_filtered) >= max_chargepoints):
+                    threshold_increment = threshold_increment / 2
+                    rating_threshold += threshold_increment
+                    ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
+                    print(len(ncr_filtered))
+                    # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
+
+            # if(rating_threshold.is_integer()):number_charge_points_threshold += 1
+            if (rating_threshold < max_rating): rating_threshold += threshold_increment
+            # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
 
 
     # return data with name, lat,long, faster connector stamp and rating

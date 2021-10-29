@@ -107,6 +107,7 @@ def landing():
         comfort_rating = speed_comfort * 5  # scaled to 0-5
         ncr_data = ratings
         sample_ncr = algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,comfort_rating)
+        print('finished algo 1')
 
         # ensure no more than 97 rows (update 12th Oct: no longer used as OSRM limit increased)
         #len_ncr = len(sample_ncr)
@@ -129,6 +130,8 @@ def landing():
         ev_charge_speed=float(ev_charge_speed)
         max_range=float(max_range)
         battery_size=float(battery_size)
+        
+        
 
 
 
@@ -151,6 +154,7 @@ def landing():
 
 
         # run Algo 2
+        print('about to start algo 2')
         read_dictionary = algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_charge_speed,max_range,battery_size)
 
 

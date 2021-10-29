@@ -136,7 +136,7 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     print('filtering chargepoints')
     ncr_filtered = ncr_in_ellipse
     
-    if len(ncr_filtered) >= min_chargements:   # only do loop if starting number of places exceeds the minimum, otherwise it gets stuck in a loop
+    if len(ncr_filtered) >= min_chargepoints:   # only do loop if starting number of places exceeds the minimum, otherwise it gets stuck in a loop
 
         while len(ncr_filtered) >= max_chargepoints:
             ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))

@@ -102,7 +102,7 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     start_postcode_coordinates = postcode_lookup.loc[postcode_lookup['postcode'] == start_postcode]
     start_lat_long = start_postcode_coordinates[['latitude','longitude']]
     end_postcode_coordinates = postcode_lookup.loc[postcode_lookup['postcode'] == end_postcode]
-    end_lat_long = end_postcode_coordinates[['latitude','longitude
+    end_lat_long = end_postcode_coordinates[['latitude','longitude]]
                                             
 
 

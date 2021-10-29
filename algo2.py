@@ -116,7 +116,9 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
                                 latlong_first[0] - ((latlong_first[0] - latlong_destination[0]) * (i / (stops_count+1))),
                                 latlong_first[1] - ((latlong_first[1] - latlong_destination[1]) * (i / (stops_count+1))),
                                 ]
-
+        print(str(i))
+       
+    print('getting dist_between_points')
     dist_between_points = math.sqrt((latlong_first[0] - latlong_destination[0])**2 + (latlong_first[0] - latlong_destination[0])**2) / (stops_count+1)
 
     # get list of tuples of start, destination, and all options

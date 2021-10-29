@@ -74,6 +74,8 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
     travel_time_matrix = np.asarray(travel_time_matrix)
 
     full_query_text = osrm_url + '/route/v1/driving/' + latlong_first_string + ';' + latlong_destination_string + '?overview=false'
+    print('full_query_text: ')
+    print(full_query_text)
     result = os.popen("curl '" + full_query_text + "'").read()
 
     distance_start_to_end_miles = json.loads(result)['routes'][0]['legs'][0]['distance'] / 1600

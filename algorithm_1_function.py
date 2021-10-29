@@ -145,10 +145,13 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
             rating_threshold -= threshold_increment
             ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
             # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
+            print(len(ncr_filtered))
+            
             if (len(ncr_filtered) >= max_chargepoints):
                 threshold_increment = threshold_increment / 2
                 rating_threshold += threshold_increment
                 ncr_filtered = (filter_chargepoints(number_charge_points_threshold, rating_threshold, ncr_in_ellipse))
+                print(len(ncr_filtered))
                 # print(number_charge_points_threshold, rating_threshold, len(ncr_filtered))
 
         # if(rating_threshold.is_integer()):number_charge_points_threshold += 1

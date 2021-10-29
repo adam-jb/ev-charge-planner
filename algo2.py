@@ -136,6 +136,7 @@ def algorithm2(sample_ncr,latlong_first,latlong_destination,speed_comfort,ev_cha
 
     # find which of these are in the circles - and thus candidates for each stop
     candidates_for_each_stop_dict = {}
+    stops_count = int(stops_count
     for i in range(1,stops_count+1):
         longitude = points_between_dict[i][0]
         latitude = points_between_dict[i][1]

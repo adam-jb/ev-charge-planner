@@ -9,7 +9,7 @@ import math
 # define functions ######################################
 
 
-def get_ellipse(start_lat_long,end_lat_long):
+def get_ellipse(start_lat_long,end_lat_long, ellipse_factor):
 
     # get equation of ellipse between those points where they are either end of longer radius
     # so need to find
@@ -110,7 +110,7 @@ def algorithm_1_function(start_postcode,end_postcode,postcode_lookup,ncr_data,co
     # using function
     print('finding ellipse')                                        
 
-    ellipse_centre_lat, ellipse_centre_long, longer_radius, shorter_radius, angle = get_ellipse(start_lat_long,end_lat_long)
+    ellipse_centre_lat, ellipse_centre_long, longer_radius, shorter_radius, angle = get_ellipse(start_lat_long,end_lat_long, ellipse_factor)
 
 
     # to test if a coordinate is within an ellipse must satisfy
